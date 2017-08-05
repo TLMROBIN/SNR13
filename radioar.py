@@ -1,5 +1,6 @@
 #! python3
 # this program is designed to plot the relation between extiction and distance in the selected region
+import _pickle
 from astropy.io import fits
 from os.path import join as pjoin
 from os.path import isfile
@@ -112,7 +113,7 @@ def readpoints(name, fig, num):
 
 def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc, single,
              vr=None, fill = False, Number = None, level = None, lowlev = None, picn = None, cloudn = None):
-    """draw contours of 3-d extinction map on diffirent distance ranges with radio picture as background, save as .eps file.
+    """draw contours of 3-d extinction map on diffirent distance ranges with radio picture as background, save as .pdf file.
     Args:
         name: name of target SNR, eg.'snr169'
         ar: 1-d array with 2-d array as elements, extinction data loaded from .sav files
