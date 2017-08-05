@@ -21,6 +21,6 @@ if __name__=='__main__':
     picn = 4
     cloudn = 1
 
-    step1(name, perctl, perpc)
-    step2(name, perctl, perpc, picn, cloudn)
+    step1_2(name, perctl, perpc)
+    step1_2(name, perctl, perpc, single, picn, cloudn)
     step3(name, cloudn)
