@@ -1,9 +1,12 @@
 #! python3
 from SNR13 import *
 
-def step1_2(name, perctl, perpc, single, picn = None, cloudn = None):
-    '''plotting the extinction per kpc on all distance'''
-    xr, yr, image_data =  radioar.readfits(name, ext = 0)
+def step1_2(name, ext, perctl, perpc, single, picn = None, cloudn = None, dirname = None):
+    '''plotting the extinction per kpc on all distance
+    Args:
+        dirname: a string representing the dir storing observation data, passed to  readfits
+    '''
+    xr, yr, image_data =  radioar.readfits(name, dirname = dirname)
     xgrid, ygrid, ar, realdis = radioar.readsnrsav(name)
     radioar.radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc, single = single, picn = picn, cloudn = cloudn)
 

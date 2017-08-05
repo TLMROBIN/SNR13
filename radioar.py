@@ -25,7 +25,7 @@ def moddis(mod):
     dis=10**(0.2*mod+1)/1000
     return dis
 
-def readfits(name, ext ,dirname = None, picdir = None):
+def readfits(name, dirname = None, picdir = None):
     """this function can read the fits picture and return its xrange, yrange and imagedata
     Args:
         name: name of target SNR, eg.'snr169'
@@ -45,6 +45,13 @@ def readfits(name, ext ,dirname = None, picdir = None):
     else:
         image_file = pjoin(picdir, '{0}.fits'.format(name))
     #read the fits pic and get the imagedata
+    image_data=fits.getdata(image_file)
+    #image_data=np.nan_to_num(image_data)
+    if dirname == 'NEW6CM':
+        ext = 0
+        image_data=image_data[ext]
+    elif dirname == '6cmSNR':
+        ext = 1
     hdulist=fits.open(image_file)
     nx=hdulist[ext].header['NAXIS1']
     ny=hdulist[ext].header['NAXIS2']
@@ -56,9 +63,7 @@ def readfits(name, ext ,dirname = None, picdir = None):
     zy=hdulist[ext].header['CRPIX2']
     xranges=(np.arange(nx)-zx)*dx+x0
     yranges=(np.arange(ny)-zy)*dy+y0 
-    image_data=fits.getdata(image_file)
-    #image_data=np.nan_to_num(image_data)
-    image_data=image_data[ext]
+    
     return xranges, yranges, image_data
 
 def readsnrsav(name, extsavdir = None):
