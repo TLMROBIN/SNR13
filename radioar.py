@@ -29,7 +29,6 @@ def readfits(name, dirname = None, picdir = None):
     """this function can read the fits picture and return its xrange, yrange and imagedata
     Args:
         name: name of target SNR, eg.'snr169'
-        ext: a number of the hdulist, where the header is located
         dirname: a string representing the dir storing observation data
         picdir: a path of the dir storing observation data
     Returns:
@@ -269,7 +268,7 @@ def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc,
         fig.text(0.5, 0., 'Galactic Latitude', ha='center', va='bottom', fontsize=12)
         fig.text(0., 0.5, 'Galactic Longitude', ha='left', va='center', rotation='vertical', fontsize=12)
         fig.savefig(pjoin('..', '..', 'Data', 'extin3d', 'results', '{0}_single.pdf'.format(name)), transparent = True, dpi=360)
-
+    plt.show()
 if __name__=='__main__':
     name = 'snr169'
     perctl = 98

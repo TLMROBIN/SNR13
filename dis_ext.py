@@ -242,6 +242,7 @@ def disarMCMCall(name, ndim = None, nwalkers = None, start = None, end = None ,s
     eximg = pjoin('..', '..', 'Data', 'extin3d', 'results', 'snrext_{0}_{1}.pdf'.format(name, cloudn))
     #samimg = pjoin('..', '..', 'Data', 'extin3d', 'results', 'corner_{0}_{1}.png'.format(name))
     fig.savefig(eximg, dpi = 360, transparent = True)
+    plt.show()
     #samfig.savefig(samimg)
     return pfit, perror
 
