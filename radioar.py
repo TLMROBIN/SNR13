@@ -236,10 +236,7 @@ def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perpc, single,
         ii = Number[0]+picn
         fig = plt.figure(figsize=(4, 4))
         ax = fig.add_subplot(111)
-        if vr == None:
-            ax.imshow(image_data, cmap = 'gray_r', origin = 'lower', extent=extent)
-        else:
-            ax.imshow(image_data, cmap = 'gray_r', vmax = vr[1], vmin = vr[0], origin = 'lower', extent=extent)
+        ax.imshow(imgdata, cmap = 'gray_r', vmax = vmax, vmin = vmin, origin = 'lower', extent = extent)
         iar = allar.loc[ii]
         iar = iar.loc[yii, xii]
         araa = gaussian_filter (iar ,0.68)
