@@ -46,7 +46,7 @@ def readfits(name, dirname = None, picdir = None):
     #read the fits pic and get the imagedata
     image_data=fits.getdata(image_file)
     #image_data=np.nan_to_num(image_data)
-    if dirname == 'NEW6CM':
+    if dirname == 'NEW6CM' or dirname == 'Effel11CM':
         ext = 0
         image_data=image_data[ext]
     elif dirname == '6cmSNR':
@@ -62,7 +62,7 @@ def readfits(name, dirname = None, picdir = None):
     zy=hdulist[ext].header['CRPIX2']
     xranges=(np.arange(nx)-zx)*dx+x0
     yranges=(np.arange(ny)-zy)*dy+y0 
-    
+    image_data = ma.masked_invalid(image_data)
     return xranges, yranges, image_data
 
 def readsnrsav(name, extsavdir = None):
