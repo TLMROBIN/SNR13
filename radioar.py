@@ -115,8 +115,8 @@ def readpoints(name, fig, num):
 
 
 
-def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc, single,
-             vr=None, fill = False, Number = None, level = None, lowlev = None, picn = None, cloudn = None):
+def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perpc, single, nradius, vmax, 
+             vmin= None, fill = False, Number = None, level = None, lowlev = None, picn = None, cloudn = None):
     """draw contours of 3-d extinction map on diffirent distance ranges with radio picture as background, save as .pdf file.
     Args:
         name: name of target SNR, eg.'snr169'
@@ -126,17 +126,18 @@ def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc,
         xr: 1-d array, range of coordinates in x axis
         yr: 1-d array, range of coordinates in y axis
         xgrid, ygrid: 1-d arrray, coordinates of centers of every grids
-        perctl: one num, percentile of image_data 
         perpc: Boolean value, if True , extinction data will be divided by distance of bin
         single: Boolean value, if False, contours will be ploted on all distance, else, only the distance selected
-        vr: optional, [a,b] specified to adjust vmin and vmax of imshow(), Default is None
+        nradius: float, the plotting size of the region
+        vmin: float, lower limit of the intensity of radio picture, default is 0
+        vmax: float, upper limit of the intensity of radio picture, unit is K
         fill : optional, Boolean value,  True, contourf; False, contour, Default is False
         Number: optional, (a, b), numbers of bins that need to be ploted, Default is (6,13)
         levels: optional, number of levels for contour, Default is 10
         lowlev: optional, levels could be hidden at head and tail, Default is 2
         picn: optional, number of the picture wanted, start from 0, Default is 4, the last ax will be deleted
         cloudn: optional, int, how many clouds we want to select, Default is 1
-    Returns: 
+    Returns:
     """
     #默认参数
     if Number == None:
@@ -149,27 +150,30 @@ def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc,
         picn = 4
     if cloudn ==None:
         cloudn = 1
+    if vmin == None:
+        vmin = 0
     #将背景数据转化为DataFrame，并进行整理
-    ImageFrame = DataFrame(image_data, index=yr, columns=xr)
-    ImageFrame = ImageFrame.fillna(0)
-    ImageFrame.index.name = 'b'
-    ImageFrame.columns.name = 'l'
-    ImageFrame[ImageFrame<0] = 0.
-    ImageFrame = ImageFrame/1000
-
+    #ImageFrame = DataFrame(image_data, index=yr, columns=xr)
+    #ImageFrame = ImageFrame.fillna(0)
+    #ImageFrame.index.name = 'b'
+    #ImageFrame.columns.name = 'l'
+    #ImageFrame[ImageFrame<0] = 0.
+    #ImageFrame = ImageFrame/1000
+    imgdata = image_data/1000
     #读取SNR坐标和范围
     SNRs = pd.read_csv(pjoin('..', '..', 'Data', 'snrlist.csv'))
     SNRs.set_index('codename',inplace=True)
-    xleft = SNRs.loc[name]['l']+SNRs.loc[name]['size']/60*2.5
-    xright = SNRs.loc[name]['l']-SNRs.loc[name]['size']/60*2.5
-    yup = SNRs.loc[name]['b']+SNRs.loc[name]['size']/60*2.5
-    ydown = SNRs.loc[name]['b']-SNRs.loc[name]['size']/60*2.5
-    
+    xleft = SNRs.loc[name]['l']+SNRs.loc[name]['size']/60*nradius
+    xright = SNRs.loc[name]['l']-SNRs.loc[name]['size']/60*nradius
+    yup = SNRs.loc[name]['b']+SNRs.loc[name]['size']/60*nradius
+    ydown = SNRs.loc[name]['b']-SNRs.loc[name]['size']/60*nradius
+
     #整理射电图数据
-    xi = (xr<xleft) & (xr>xright) 
+    xi = (xr<xleft) & (xr>xright)
     yi = (yr<yup) & (yr>ydown)
-    ImageFrame = ImageFrame.loc[yi,xi]
-    extent = [ImageFrame.columns.max(), ImageFrame.columns.min(), ImageFrame.index.min(), ImageFrame.index.max()]
+    imgdata = imgdata[yi,:]
+    imgdata = imgdata[:,xi]
+    extent = [xr[xi].max(), xr[xi].min(), yr[yi].min(), yr[yi].max()]
     
     #整理消光数据
     disbins = moddis((dismod(realdis) + 0.25)) - moddis((dismod(realdis) - 0.25))
@@ -191,9 +195,9 @@ def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc,
     if single == False:
         p = matplotlib.rcParams
         # 配置绘图区域的大小和位置，下面的值是基于图标的宽和高的比例
-        p["figure.subplot.left"] = 0.05  # 左边距 
+        p["figure.subplot.left"] = 0.05  # 左边距
         p["figure.subplot.right"] = 0.98   # 右边距
-        p["figure.subplot.bottom"] = 0.1  # 下边距 
+        p["figure.subplot.bottom"] = 0.1  # 下边距
         p["figure.subplot.top"] = 0.95   # 上边距
         # 配置subplots之间的间距（水平间距和垂直间距），也是基于图标的宽和高的比例
         p["figure.subplot.wspace"] = 0.05
@@ -202,10 +206,7 @@ def radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc,
         fig.delaxes(axes.flat[-1])
         for ii, ax in zip(range(Number[0], Number[1]), axes.flat[:-1]):
             #画射电灰度图
-            if vr == None:
-                ax.imshow(ImageFrame, cmap = 'gray_r', origin = 'lower', extent=extent)
-            else:
-                ax.imshow(ImageFrame, cmap = 'gray_r', vmax = vr[1], vmin = vr[0], origin = 'lower', extent=extent)
+            ax.imshow(imgdata, cmap = 'gray_r', vmax = vmax, vmin = vmin, origin = 'lower', extent=extent)
 
             #画消光contour图
             iar = allar.loc[ii]
