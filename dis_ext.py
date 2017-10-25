@@ -206,6 +206,9 @@ def disarMCMCall(name, ndim = None, nwalkers = None, start = None, end = None ,s
     else:
         pfit, paras, l, u = MCMCbasic(dis, ar, ndim, nwalkers, start, end, step, p0, diameter, nsigma_down, nsigma_up)
         perror = (u - l) / 2
+    
+    disx, arx = sigmaclips(np.array([dis,ar]), start, end, step, nsigma_down, nsigma_up) #dis and ar after sigmacliping
+    
     # plotting the result
     matplotlib.rcdefaults()
     
@@ -220,7 +223,8 @@ def disarMCMCall(name, ndim = None, nwalkers = None, start = None, end = None ,s
     fig = plt.figure(figsize=(4.5,4))
     plt.rc('text', usetex=True)
     ax = fig.add_subplot(111)
-    stars = ax.plot(dis,ar,'.k', ms = 3, label = r'$\rm Sources~in~selected~area$')
+    stars = ax.plot(dis, ar, '.k', ms = 3, label = r'$\rm Sources~in~selected~area$')
+    starsx = ax.plot(disx, arx, '.g', ms = 3)
     for a, b, d0, d_ar  in paras[np.random.randint(len(paras), size=100)]:
         _=ax.plot(x1, a * x1 + b * x1 ** 2 + d_ar / 2.0 * (1 + erf((x1 - d0) / np.sqrt(2) / (diameter/60./360*2*np.pi)/d0)) ,
                   color="b", alpha=0.1)
