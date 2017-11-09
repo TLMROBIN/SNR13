@@ -275,3 +275,5 @@ if __name__=='__main__':
     xr, yr, image_data = readfits(name, ext = 0)
     xgrid, ygrid, ar, realdis = readsnrsav(name)
     radio_ar(name, ar, realdis, image_data, xr, yr, xgrid, ygrid, perctl, perpc, single)
+
+    fhjksdfhgjfghfdhlfdjkgfd
