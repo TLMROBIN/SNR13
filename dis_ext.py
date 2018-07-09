@@ -16,7 +16,7 @@ import matplotlib.ticker as ticker
 import matplotlib
 
 def datainborder(name, points = None, cloudn = None):
-    """to judge which points are located in the cloud border we choose, then get their data
+    """to judge which points are located in the cloud border we choose, then get and save their data
     Args:
         name: name of target SNR, eg.'snr169'
         points: a list of number pairs, if None, points will be loaded from file
@@ -82,6 +82,53 @@ def sigmaclips(data, start, end, length, nsigma_up, nsigma_down):
     dis = np.ma.compressed(dis)
     return dis, ar
 
+def binMedMean(data, start, end, length, nsigma_down, nsigma_up):
+    '''sigmaclip the samples in each bin
+    Args:
+        data: 2-d array, [dis, ar]
+        start, end, length: imformation for setup bins
+        nsigma_down : float, Lower bound factor of sigma clipping.
+        nsigma_up : float, Upper bound factor of sigma clipping.
+    Returns:
+        dis: 1-d array of distance data
+        ar: 1-d array of extinction data 
+    '''
+    #
+    data=np.array(data)
+    bin_number = int((end - start) // length)  #decide how many bins will be choosen
+    dismeanlist = []
+    armeanlist = []
+    dismedlist = []
+    armedlist = []
+    for i in np.arange(bin_number):
+        index = np.logical_and(data[0] > start + i * length, data[0] < start + (i + 1) * length)
+        if np.count_nonzero(index) >= 1:
+            binar = data[1][index]
+            bindis = data[0][index]
+            c, l, u= stats.sigmaclip(binar, nsigma_down, nsigma_up)
+            ix = np.where((l <= binar) & (binar <= u))[0]
+            arb = binar[ix]
+            disb = bindis[ix]
+            dismean = np.mean(disb)
+            armean = np.mean(arb)
+            dismed = np.median(disb)
+            armed = np.median(arb)
+        else:
+            dismean = []
+            armean = []
+            dismed = []
+            armed = []
+        dismeanlist.append(dismean)
+        armeanlist.append(armean)
+        dismedlist.append(dismed)
+        armedlist.append(armed)
+    #join a sequence of arrays along an existing axis
+    #Return all the non-masked data as a 1-D array
+    mean = [np.array(dismeanlist), np.array(armeanlist)]  
+    median = [np.array(dismedlist), np.array(armedlist)]
+    return mean, median
+
+
 def lnlike(theta, x, y, yerr, D):
     a, b, d0, d_ar= theta
     model = a * x + b * x ** 2 + d_ar / 2.0 * (1 + erf((x - d0) / np.sqrt(2) / (D/60./360*2*np.pi)/d0))
@@ -89,7 +136,7 @@ def lnlike(theta, x, y, yerr, D):
 
 def lnprior(theta):
     a, b, d0, d_ar= theta
-    if -10 < a < 10 and -1 < b < 1 and 0 < d0 < 2 and 0 < d_ar < 3. :
+    if 0 < a < 3 and -0.2 < b < 0.5 and 0.8 < d0 < 1.5 and 0 < d_ar < 3. :
         return 0.0
     return -np.inf
 
@@ -116,7 +163,7 @@ def MCMCbasic(dis, ar, ndim, nwalkers, start, end, step, p0, diameter, nsigma_do
         lower: lowlimit of paras
         uper: uperlimit of paras
     '''
-    x, y = sigmaclips(np.array([dis,ar]), start, end, step, nsigma_down, nsigma_up)
+    x, y = sigmaclips(np.array([dis, ar]), start, end, step, nsigma_down, nsigma_up)
     yerr = np.zeros_like(x)
     D = np.zeros_like(x)
     yerr[:] = 0.15
@@ -208,7 +255,7 @@ def disarMCMCall(name, ndim = None, nwalkers = None, start = None, end = None ,s
         perror = (u - l) / 2
     
     disx, arx = sigmaclips(np.array([dis,ar]), start, end, step, nsigma_down, nsigma_up) #dis and ar after sigmacliping
-    
+    means, meds = binMedMean(np.array([dis,ar]), start, end, step, nsigma_down, nsigma_up)
     # plotting the result
     matplotlib.rcdefaults()
     
@@ -225,6 +272,8 @@ def disarMCMCall(name, ndim = None, nwalkers = None, start = None, end = None ,s
     ax = fig.add_subplot(111)
     stars = ax.plot(dis, ar, '.k', ms = 3, label = r'$\rm Sources~in~selected~area$')
     starsx = ax.plot(disx, arx, '.g', ms = 3)
+    #meansplot = ax.plot(means[0], means[1], '.r', ms = 5, label = r'$\rm Means$')
+    medsplot = ax.plot(meds[0], meds[1], '.r', ms = 8, label = r'$\rm Medians$')
     for a, b, d0, d_ar  in paras[np.random.randint(len(paras), size=100)]:
         _=ax.plot(x1, a * x1 + b * x1 ** 2 + d_ar / 2.0 * (1 + erf((x1 - d0) / np.sqrt(2) / (diameter/60./360*2*np.pi)/d0)) ,
                   color="b", alpha=0.1)

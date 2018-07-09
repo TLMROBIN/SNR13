@@ -1,4 +1,4 @@
-# package snr14
+# package snr13
 # __init__.py
 import _pickle
 import corner
