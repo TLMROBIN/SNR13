@@ -9,11 +9,9 @@ from scipy.io import readsav
 from matplotlib import path
 from scipy.special import erf
 from scipy import stats
-import numpy.ma as ma
-from pandas import  Series, DataFrame
-import pandas as pd
 import matplotlib.ticker as ticker
 import matplotlib
+
 
 def datainborder(name, points = None, cloudn = None):
     """to judge which points are located in the cloud border we choose, then get and save their data
