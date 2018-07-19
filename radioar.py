@@ -6,24 +6,26 @@ from os.path import join as pjoin
 from os.path import isfile
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
 from scipy.io import readsav
 from scipy.ndimage.filters import gaussian_filter
 import matplotlib
 import numpy.ma as ma
-from pandas import  Series, DataFrame
 import pandas as pd
 import matplotlib.ticker as ticker
-#Todo1 use the radio diagram as background
+# Todo1 use the radio diagram as background
+
+
 def dismod(dis):
     """convert distance to distance module"""
     mod=-5+5*np.log10(dis*1000)
     return mod
 
+
 def moddis(mod):
     """convert distance module to distance"""
     dis=10**(0.2*mod+1)/1000
     return dis
+
 
 def readfits(name, dirname = None, picdir = None):
     """this function can read the fits picture and return its xrange, yrange and imagedata
@@ -36,8 +38,8 @@ def readfits(name, dirname = None, picdir = None):
         yranges: 1-d array, range of coordinates in y axis
         image_data: 2-d array, may contain nan in it; observation data
     """
-    #radio pic path
-    if dirname == None:
+    # radio pic path
+    if dirname is None:
         dirname = 'NEW6CM'
     if picdir == None:
         image_file = pjoin('..', '..', 'Data', 'snrpic', '{0}'.format(dirname), '{0}.fits'.format(name))
