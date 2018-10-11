@@ -13,7 +13,7 @@ import matplotlib.ticker as ticker
 import matplotlib
 
 
-def datainborder(name, points = None, cloudn = None):
+def datainborder(name, points=None, cloudn=None):
     """to judge which points are located in the cloud border we choose, then get and save their data
     Args:
         name: name of target SNR, eg.'snr169'
@@ -21,7 +21,7 @@ def datainborder(name, points = None, cloudn = None):
         cloudn : number of clouds, if None, only one cloud's resources will be selected
     Return:
     """
-    if cloudn ==None:
+    if cloudn == None:
         cloudn = 1
     if points == None:
         #load points from file
@@ -43,6 +43,7 @@ def datainborder(name, points = None, cloudn = None):
     datafile = open(datapath, 'wb')
     _pickle.dump(data, datafile, 2)
     datafile.close()
+
 
 def sigmaclips(data, start, end, length, nsigma_up, nsigma_down):
     '''sigmaclip the samples in each bin
@@ -74,9 +75,9 @@ def sigmaclips(data, start, end, length, nsigma_up, nsigma_down):
             disb = []
         arlist.append(arb)
         dislist.append(disb)
-    ar = np.concatenate(arlist)  #join a sequence of arrays along an existing axis
+    ar = np.concatenate(arlist)  # join a sequence of arrays along an existing axis
     dis = np.concatenate(dislist)
-    ar = np.ma.compressed(ar)  #Return all the non-masked data as a 1-D array
+    ar = np.ma.compressed(ar)  # Return all the non-masked data as a 1-D array
     dis = np.ma.compressed(dis)
     return dis, ar
 
@@ -120,8 +121,12 @@ def binMedMean(data, start, end, length, nsigma_down, nsigma_up):
         armeanlist.append(armean)
         dismedlist.append(dismed)
         armedlist.append(armed)
-    #join a sequence of arrays along an existing axis
-    #Return all the non-masked data as a 1-D array
+    dismeanlist = [x for x in dismeanlist if x]
+    armeanlist = [x for x in armeanlist if x]
+    dismedlist = [x for x in dismedlist if x]
+    armedlist = [x for x in armedlist if x]
+    # join a sequence of arrays along an existing axis
+    # Return all the non-masked data as a 1-D array
     mean = [np.array(dismeanlist), np.array(armeanlist)]  
     median = [np.array(dismedlist), np.array(armedlist)]
     return mean, median
